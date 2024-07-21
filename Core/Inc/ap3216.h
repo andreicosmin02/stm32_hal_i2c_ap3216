@@ -43,6 +43,23 @@ typedef enum
     PS_REG_HIGH_THRESHOLD_10_3 = 0x2D     // Higher byte of PS high threshold
 } PSRegisterTable;
 
+#define AP3216_ID           0x1E
+#define AP3216_READ         0x01
+#define AP3216_WRITE        0x00
+#define AP3216_READ_ADD     (AP3216_ID << 1 | AP3216_READ)
+#define AP3216_WRITE_ADD    (AP3216_ID << 1 | AP3216_WRITE)
+
+#define SW_RESET            0x04
+#define ALS_PS_IR_ACTIVE    0x03
+
+#define I2C_WRITE_DATA_SIZE 2
+#define ADDRESS_DATA_INDEX  0
+#define VALUE_DATA_INDEX    1
+
+#define I2C_TIMEOUT 200
+
+
+void AP3216_Init(I2C_HandleTypeDef *hi2c);
 
 
 #endif /* INC_AP3216_H_ */
