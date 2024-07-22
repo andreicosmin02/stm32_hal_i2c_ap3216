@@ -30,6 +30,8 @@ extern "C" {
 
 /* USER CODE BEGIN Includes */
 
+#include "ap3216.h"
+
 /* USER CODE END Includes */
 
 extern UART_HandleTypeDef huart2;
@@ -41,6 +43,8 @@ extern UART_HandleTypeDef huart2;
 void MX_USART2_UART_Init(void);
 
 /* USER CODE BEGIN Prototypes */
+
+void TransmitSensorValues(UART_HandleTypeDef *huart, ap3216_values *sensor_values);
 
 /* USER CODE END Prototypes */
 

@@ -1,6 +1,8 @@
 #ifndef INC_AP3216_H_
 #define INC_AP3216_H_
 
+#include <stdint.h>
+#include <stdbool.h>
 
 // System Register Table
 typedef enum
@@ -37,11 +39,94 @@ typedef enum
     PS_REG_LED_WAITING_TIME = 0x24,    // Control PS LED waiting time
     PS_REG_CALIBRATION_L = 0x28,    // Offset value to eliminate cross talk
     PS_REG_CALIBRATION_H = 0x29,    // Offset value to eliminate cross talk
-    PS_REG_LOW_THRESHOLD_2_0 = 0x2A,    // Lower byte of PS low threshold
-    PS_REG_LOW_THRESHOLD_10_3 = 0x2B,    // Higher byte of PS low threshold
-    PS_REG_HIGH_THRESHOLD_2_0 = 0x2C,    // Lower byte of PS high threshold
-    PS_REG_HIGH_THRESHOLD_10_3 = 0x2D     // Higher byte of PS high threshold
+    PS_REG_LOW_THRESHOLD_1_0 = 0x2A,    // Lower byte of PS low threshold
+    PS_REG_LOW_THRESHOLD_9_2 = 0x2B,    // Higher byte of PS low threshold
+    PS_REG_HIGH_THRESHOLD_1_0 = 0x2C,    // Lower byte of PS high threshold
+    PS_REG_HIGH_THRESHOLD_9_2 = 0x2D     // Higher byte of PS high threshold
 } PSRegisterTable;
+
+// System configuration
+typedef enum
+{
+    POWER_DOWN = 0x00,
+    ALS_FUNCTION_ACTIVE,
+    PS_IR_FUNCTION_ACTIVE,
+    ALS_PS_IR_FUNCTIONS_ACTIVE,
+    SW_RESET,
+    ALS_FUNCTION_ONCE,
+    PS_IR_FUNCTION_ONCE,
+    ALS_PS_IR_FUNCTIONS_ONCE
+} System_ConfTypeDef;
+
+
+// ALS Range
+typedef enum
+{
+    RANGE_20661 = 0,
+    RANGE_5162 = 0x10,
+    RANGE_1291 = 0x20,
+    RANGE_323 = 0x30
+} ALS_RangeTypeDef;
+
+// ALS Range factor
+#define FACTOR_RANGE_20661  0.35
+#define FACTOR_RANGE_5162   0.0788
+#define FACTOR_RANGE_1291   0.0197
+#define FACTOR_RANGE_323    0.0049
+
+// ALS Persist
+typedef enum
+{
+    CONVERSION_TIME_1 = 0x00,
+    CONVERSION_TIME_4 = 0x01,
+    CONVERSION_TIME_8 = 0x02,
+    CONVERSION_TIME_12 = 0x03,
+    CONVERSION_TIME_16 = 0x04,
+    CONVERSION_TIME_60 = 0x0F
+} ALS_PersistTypeDef;
+
+// PS Gain
+typedef enum
+{
+    PS_GAIN_1 = 0x00,
+    PS_GAIN_2 = 0x01,
+    PS_GAIN_4 = 0x02,
+    PS_GAIN_8 = 0x03
+} PS_GainTypeDef;
+
+// PS LED Pulse
+typedef enum
+{
+    PULSE_0 = 0x00,
+    PULSE_1 = 0x01,
+    PULSE_2 = 0x02,
+    PULSE_3 = 0x03
+} PS_LED_PulseTypeDef;
+
+// PS LED Driver Ratio
+typedef enum
+{
+    DRIVER_RATIO_16 = 0x00,
+    DRIVER_RATIO_33 = 0x01,
+    DRIVER_RATIO_66 = 0x02,
+    DRIVER_RATIO_100 = 0x03
+} PS_LED_DriverRatioTypeDef;
+
+// PS INT Mode
+typedef enum
+{
+    ZONE_TYPE_MODE = 0x00,
+    HYSTERESIS_TYPE_MODE = 0x01
+} PS_INT_ModeTypeDef;
+
+// PS Mean Time
+typedef enum
+{
+    MEAN_TIME_12 = 0x00,
+    MEAN_TIME_25 = 0x01,
+    MEAN_TIME_37 = 0x02,
+    MEAN_TIME_50 = 0x03
+} PS_MeanTimeTypeDef;
 
 #define AP3216_ID           0x1E
 #define AP3216_READ         0x01
@@ -52,14 +137,88 @@ typedef enum
 #define SW_RESET            0x04
 #define ALS_PS_IR_ACTIVE    0x03
 
-#define I2C_WRITE_DATA_SIZE 2
-#define ADDRESS_DATA_INDEX  0
-#define VALUE_DATA_INDEX    1
+#define I2C_WRITE_DATA_SIZE     2
+#define ADDRESS_DATA_INDEX      0
+#define VALUE_DATA_INDEX        1
+#define I2C_READ_DATA_SIZE      2
+#define I2C_READ_SINGLE_SIZE    1
+#define I2C_READ_MEM_SIZE       1
 
 #define I2C_TIMEOUT 200
+
+#define ALS_DYNAMIC_RANGE_MASK  0xCF
+#define ALS_PERSIST_MASK        0xF0
+#define ALS_THRESHOLD_MASK      0xFF
+#define ALS_REG_SIZE            0x08
+#define PS_TIME_SELECT_MASK     0x0F
+#define PS_TIME_SELECT_BIT_0    0x04
+#define PS_GAIN_MASK            0xF3
+#define PS_GAIN_BIT_0           0x02
+#define PS_LED_PULSE_MASK       0xCF
+#define PS_LED_PULSE_BIT_0      0x04
+#define PS_LED_DRIVER_RATIO_MASK    0xFC
+#define PS_INT_MODE_MASK        0xFE
+#define PS_MEAN_TIME_MASK       0xFC
+#define PS_LED_WAITING_MASK     0xC0
+#define PS_LED_CALIBRATION_L_MASK   0xFE
+#define PS_LED_CALIBRATION_L_BIT    0x01
+#define PS_LED_CALIBRATION_H_MASK   0xFF
+
+#define PS_LED_LOW_THRESHOLD_L_MASK 0xFC
+#define PS_LED_LOW_THRESHOLD_L_BIT  0x02
+#define PS_LED_LOW_THRESHOLD_H_MASK 0xFF
+
+#define PS_LED_HIGH_THRESHOLD_L_MASK 0xFC
+#define PS_LED_HIGH_THRESHOLD_L_BIT  0x02
+#define PS_LED_HIGH_THRESHOLD_H_MASK 0xFF
+
+#define DATA_HIGH_INDEX     0x00
+#define DATA_LOW_INDEX      0x01
+
+#define IR_DATA_VALID_MASK      0x80
+#define IR_DATA_HIGH_MASK       0x03
+#define IR_DATA_LOW_SIZE        0x02
+
+#define ALS_DATA_LOW_SIZE       0x08
+
+#define PS_DATA_OBJECT_DETECT_MASK  0x80
+#define PS_DATA_IR_OVERFLOW_MASK    0x40
+#define PS_DATA_LOW_MASK            0x0F
+#define PS_DATA_LOW_SIZE            0x04
+
+
+typedef struct values
+{
+    double ambient_light;
+    uint16_t proximity;
+    uint16_t IR_light;
+    bool object_is_near;
+    bool ir_valid;
+} ap3216_values;
 
 
 void AP3216_Init(I2C_HandleTypeDef *hi2c);
 
+void AP3216_SystemConfiguration(System_ConfTypeDef configuration);
+
+void AP3216_ALS_DynamicRange(ALS_RangeTypeDef range);
+void AP3216_ALS_Persist(ALS_PersistTypeDef persist);
+void AP3216_ALS_Calibration(uint8_t calibration);
+void AP3216_ALS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+
+void AP3216_PS_TimeSelect(uint8_t time_select);
+void AP3216_PS_Gain(PS_GainTypeDef gain);
+void AP3216_PS_LED_Pulse(PS_LED_PulseTypeDef pulse);
+void AP3216_LED_DriverRatio(PS_LED_DriverRatioTypeDef driver_ratio);
+void AP3216_PS_INT_Mode(PS_INT_ModeTypeDef int_mode);
+void AP3216_PS_MeanTime(PS_MeanTimeTypeDef mean_time);
+void AP3216_PS_LED_Waiting(uint8_t led_waiting);
+void AP3216_PS_LED_Calibration(uint16_t calibration);
+void AP3216_PS_LED_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+
+void AP3216_Values(ap3216_values *sensor_values);
+
+void AP3216_Write(uint8_t i2c_address, uint8_t value_to_write);
+void AP3216_Read(uint8_t i2c_address, uint8_t *data, uint8_t data_size);
 
 #endif /* INC_AP3216_H_ */
