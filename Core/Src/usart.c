@@ -22,9 +22,6 @@
 
 /* USER CODE BEGIN 0 */
 
-#include <stdio.h>
-#include "ap3216.h"
-
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart2;
@@ -127,24 +124,24 @@ void HAL_UART_MspDeInit(UART_HandleTypeDef *uartHandle)
 
 /* USER CODE BEGIN 1 */
 
-void TransmitSensorValues(UART_HandleTypeDef *huart, ap3216_values *sensor_values)
-{
-    char buffer[200]; // Allocate a buffer large enough to hold the formatted string
-    int length;
-
-    // Format the values into the buffer
-    length = snprintf(
-            buffer,
-            sizeof(buffer),
-            "Ambient Light: %.2f\r\nProximity: %u\r\nIR Light: %u\r\nObject is Near: %s\r\nIR Valid: %s\r\n\r\n",
-            sensor_values->ambient_light,
-            sensor_values->proximity,
-            sensor_values->IR_light,
-            sensor_values->object_is_near ? "True" : "False",
-            sensor_values->ir_valid ? "True" : "False"
-    );
-
-    HAL_UART_Transmit(huart, (uint8_t *) buffer, length, HAL_MAX_DELAY);
-}
+//void TransmitSensorValues(UART_HandleTypeDef *huart, ap3216_values *sensor_values)
+//{
+//    char buffer[200]; // Allocate a buffer large enough to hold the formatted string
+//    int length;
+//
+//    // Format the values into the buffer
+//    length = snprintf(
+//            buffer,
+//            sizeof(buffer),
+//            "Ambient Light: %.2f\r\nProximity: %u\r\nIR Light: %u\r\nObject is Near: %s\r\nIR Valid: %s\r\n\r\n",
+//            sensor_values->ambient_light,
+//            sensor_values->proximity,
+//            sensor_values->IR_light,
+//            sensor_values->object_is_near ? "True" : "False",
+//            sensor_values->ir_valid ? "True" : "False"
+//    );
+//
+//    HAL_UART_Transmit(huart, (uint8_t *) buffer, length, HAL_MAX_DELAY);
+//}
 
 /* USER CODE END 1 */

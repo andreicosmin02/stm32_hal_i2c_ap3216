@@ -1,8 +1,14 @@
-#ifndef INC_AP3216_H_
-#define INC_AP3216_H_
+#ifndef INC_AP3216_HPP_
+#define INC_AP3216_HPP_
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+#include "main.h"
+#include "usart.h"
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdio.h>
 
 // System Register Table
 typedef enum
@@ -186,39 +192,102 @@ typedef enum
 #define PS_DATA_LOW_MASK            0x0F
 #define PS_DATA_LOW_SIZE            0x04
 
+#define AP3216_ALS_CALIBRATION_DEFAULT_VALUE    0x40
+#define AP3216_PS_TIME_SELECT_DEFAULT_VALUE     0x00
+#define AP3216_PS_LED_WAITING_DEFAULT_VALUE     0x00
 
-typedef struct values
+
+#ifdef __cplusplus
+}
+
+
+struct ap3216_values
 {
     double ambient_light;
     uint16_t proximity;
     uint16_t IR_light;
     bool object_is_near;
     bool ir_valid;
-} ap3216_values;
+} ;
+
+struct AP3216_ConfigTypeDef
+{
+    System_ConfTypeDef System_Conf = POWER_DOWN;
+    ALS_RangeTypeDef ALS_range = RANGE_20661;
+    double ALS_dynamic_range_factor = FACTOR_RANGE_20661;
+    ALS_PersistTypeDef ALS_Persist = CONVERSION_TIME_1;
+    uint8_t ALS_calibration = AP3216_ALS_CALIBRATION_DEFAULT_VALUE;
+    uint16_t ALS_low_threshold;
+    uint16_t ALS_high_threshold;
+    uint8_t PS_Time_Select = AP3216_PS_TIME_SELECT_DEFAULT_VALUE;
+    PS_GainTypeDef PS_Gain = PS_GAIN_2;
+    PS_LED_PulseTypeDef PS_LED_Pulse = PULSE_1;
+    PS_LED_DriverRatioTypeDef PS_LED_DriverRatio = DRIVER_RATIO_100;
+    PS_INT_ModeTypeDef PS_INT_Mode = HYSTERESIS_TYPE_MODE;
+    PS_MeanTimeTypeDef PS_MeanTime = MEAN_TIME_12;
+    uint8_t PS_LED_Waiting = AP3216_PS_LED_WAITING_DEFAULT_VALUE;
+    uint16_t PS_LED_Calibration;
+    uint16_t PS_LED_low_threshold;
+    uint16_t PS_LED_high_threshold;
+} ;
 
 
-void AP3216_Init(I2C_HandleTypeDef *hi2c);
+class AP3216
+{
+private:
+    ap3216_values values;
+    I2C_HandleTypeDef *hi2c;
+    AP3216_ConfigTypeDef *AP3216_config;
+public:
 
-void AP3216_SystemConfiguration(System_ConfTypeDef configuration);
+    void AP3216_Init(I2C_HandleTypeDef *hi2c, AP3216_ConfigTypeDef *AP3216_config);
 
-void AP3216_ALS_DynamicRange(ALS_RangeTypeDef range);
-void AP3216_ALS_Persist(ALS_PersistTypeDef persist);
-void AP3216_ALS_Calibration(uint8_t calibration);
-void AP3216_ALS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+    void AP3216_SystemConfiguration(System_ConfTypeDef configuration);
 
-void AP3216_PS_TimeSelect(uint8_t time_select);
-void AP3216_PS_Gain(PS_GainTypeDef gain);
-void AP3216_PS_LED_Pulse(PS_LED_PulseTypeDef pulse);
-void AP3216_LED_DriverRatio(PS_LED_DriverRatioTypeDef driver_ratio);
-void AP3216_PS_INT_Mode(PS_INT_ModeTypeDef int_mode);
-void AP3216_PS_MeanTime(PS_MeanTimeTypeDef mean_time);
-void AP3216_PS_LED_Waiting(uint8_t led_waiting);
-void AP3216_PS_LED_Calibration(uint16_t calibration);
-void AP3216_PS_LED_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+    void AP3216_ALS_DynamicRange(ALS_RangeTypeDef range);
 
-void AP3216_Values(ap3216_values *sensor_values);
+    void AP3216_ALS_Persist(ALS_PersistTypeDef persist);
 
-void AP3216_Write(uint8_t i2c_address, uint8_t value_to_write);
-void AP3216_Read(uint8_t i2c_address, uint8_t *data, uint8_t data_size);
+    void AP3216_ALS_Calibration(uint8_t calibration);
 
-#endif /* INC_AP3216_H_ */
+    void AP3216_ALS_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+
+    void AP3216_PS_TimeSelect(uint8_t time_select);
+
+    void AP3216_PS_Gain(PS_GainTypeDef gain);
+
+    void AP3216_PS_LED_Pulse(PS_LED_PulseTypeDef pulse);
+
+    void AP3216_LED_DriverRatio(PS_LED_DriverRatioTypeDef driver_ratio);
+
+    void AP3216_PS_INT_Mode(PS_INT_ModeTypeDef int_mode);
+
+    void AP3216_PS_MeanTime(PS_MeanTimeTypeDef mean_time);
+
+    void AP3216_PS_LED_Waiting(uint8_t led_waiting);
+
+    void AP3216_PS_LED_Calibration(uint16_t calibration);
+
+    void AP3216_PS_LED_Threshold(uint16_t low_threshold, uint16_t high_threshold);
+
+    void AP3216_Values(ap3216_values *sensor_values);
+
+    void AP3216_Write(uint8_t i2c_address, uint8_t value_to_write);
+
+    void AP3216_Read(uint8_t i2c_address, uint8_t *data, uint8_t data_size);
+
+    bool AP3216_GetIRValid();
+
+    uint16_t AP3216_GetIRLight();
+
+    double AP3216_GetAmbientLight();
+
+    bool AP3216_GetObjectNear();
+
+    uint16_t AP3216_GetProximity();
+
+    void TransmitSensorValues(UART_HandleTypeDef *huart, ap3216_values *sensor_values);
+};
+#endif
+
+#endif /* INC_AP3216_HPP_ */

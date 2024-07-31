@@ -25,7 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "ap3216.h"
+#include "ap3216.hpp"
 
 /* USER CODE END Includes */
 
@@ -48,7 +48,15 @@
 
 /* USER CODE BEGIN PV */
 
+//double ambient_light;
+//uint16_t proximity;
+//uint16_t IR_light;
+//bool object_is_near;
+//bool ir_valid;
+
 ap3216_values sensor_values;
+AP3216 ap3216_sensor;
+AP3216_ConfigTypeDef AP3216_Configuration;
 
 /* USER CODE END PV */
 
@@ -96,15 +104,27 @@ int main(void)
     MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
 
-    AP3216_Init(&hi2c1);
-    AP3216_SystemConfiguration(ALS_PS_IR_FUNCTIONS_ACTIVE);
-    AP3216_ALS_DynamicRange(RANGE_20661);
-    AP3216_PS_Gain(PS_GAIN_2);
-    AP3216_PS_LED_Pulse(PULSE_3);
-    AP3216_PS_MeanTime(MEAN_TIME_50);
-    AP3216_PS_LED_Threshold(300, 800);
-    AP3216_PS_TimeSelect(1);
-    AP3216_PS_INT_Mode(HYSTERESIS_TYPE_MODE);
+//    AP3216_Init(&hi2c1);
+//    AP3216_SystemConfiguration(ALS_PS_IR_FUNCTIONS_ACTIVE);
+//    AP3216_ALS_DynamicRange(RANGE_20661);
+//    AP3216_PS_Gain(PS_GAIN_2);
+//    AP3216_PS_LED_Pulse(PULSE_3);
+//    AP3216_PS_MeanTime(MEAN_TIME_50);
+//    AP3216_PS_LED_Threshold(300, 800);
+//    AP3216_PS_TimeSelect(1);
+//    AP3216_PS_INT_Mode(HYSTERESIS_TYPE_MODE);
+
+    AP3216_Configuration.System_Conf = ALS_PS_IR_FUNCTIONS_ACTIVE;
+    AP3216_Configuration.ALS_range = RANGE_20661;
+    AP3216_Configuration.PS_Gain = PS_GAIN_2;
+    AP3216_Configuration.PS_LED_Pulse = PULSE_3;
+    AP3216_Configuration.PS_MeanTime = MEAN_TIME_50;
+    AP3216_Configuration.PS_LED_low_threshold = 300;
+    AP3216_Configuration.PS_LED_high_threshold = 800;
+    AP3216_Configuration.PS_Time_Select = 1;
+    AP3216_Configuration.PS_INT_Mode = HYSTERESIS_TYPE_MODE;
+    ap3216_sensor.AP3216_Init(&hi2c1, &AP3216_Configuration);
+
 
 
     /* USER CODE END 2 */
@@ -113,8 +133,12 @@ int main(void)
     /* USER CODE BEGIN WHILE */
     while (1)
     {
-        AP3216_Values(&sensor_values);
-        TransmitSensorValues(&huart2, &sensor_values);
+        sensor_values.ambient_light = ap3216_sensor.AP3216_GetAmbientLight();
+        sensor_values.proximity = ap3216_sensor.AP3216_GetProximity();
+        sensor_values.IR_light = ap3216_sensor.AP3216_GetIRLight();
+        sensor_values.object_is_near = ap3216_sensor.AP3216_GetObjectNear();
+        sensor_values.ir_valid = ap3216_sensor.AP3216_GetIRValid();
+        ap3216_sensor.TransmitSensorValues(&huart2, &sensor_values);
         HAL_Delay(300);
         /* USER CODE END WHILE */
 
